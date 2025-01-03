@@ -1,0 +1,68 @@
+Divide:
+
+Divide the array into two halves.
+Recursively find the maximum and second maximum in each half.
+Conquer:
+
+Compare the maximum elements of the two halves.
+The larger of these is the overall maximum.
+The smaller of these (or the second largest from the half containing the maximum) is the second maximum.
+Combine:
+
+Track the comparisons made during the process. The second maximum must have directly competed with the overall maximum during the process.
+
+
+
+----------- code ---------------------
+
+
+#include <iostream>
+#include <vector>
+#include <limits.h>
+using namespace std;
+
+// Helper function to find max and second max in a tournament style
+pair<int, int> findMaxAndSecondMax(vector<int>& arr, int left, int right) {
+    // Base case: If there are only two elements
+    if (right - left == 1) {
+        int maxElement = max(arr[left], arr[right]);
+        int secondMaxElement = min(arr[left], arr[right]);
+        return {maxElement, secondMaxElement};
+    }
+    
+    // Divide the array into two halves
+    int mid = left + (right - left) / 2;
+    pair<int, int> leftResult = findMaxAndSecondMax(arr, left, mid);
+    pair<int, int> rightResult = findMaxAndSecondMax(arr, mid + 1, right);
+
+    // Conquer: Combine results
+    int maxElement = max(leftResult.first, rightResult.first);
+    int secondMaxElement;
+    
+    if (leftResult.first == maxElement) {
+        secondMaxElement = max(leftResult.second, rightResult.first);
+    } else {
+        secondMaxElement = max(leftResult.first, rightResult.second);
+    }
+
+    return {maxElement, secondMaxElement};
+}
+
+int main() {
+    // Input array
+    vector<int> arr = {10, 5, 8, 20, 15, 25, 30, 12};
+
+    if (arr.size() < 2) {
+        cout << "Array must have at least two elements!" << endl;
+        return 0;
+    }
+
+    // Find maximum and second maximum
+    pair<int, int> result = findMaxAndSecondMax(arr, 0, arr.size() - 1);
+
+    // Output results
+    cout << "Maximum Element: " << result.first << endl;
+    cout << "Second Maximum Element: " << result.second << endl;
+
+    return 0;
+}
