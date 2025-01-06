@@ -1,0 +1,83 @@
+// Algorithm
+
+To solve the problem efficiently, we can use the following approach:
+
+Understand Rotation and Sorting:
+
+A rotated array is a sorted array shifted to the left or right.
+For example:
+Sorted: [1, 2, 3, 4, 5]
+Rotated: [4, 5, 1, 2, 3]
+Sorting with Minimum Swaps:
+
+A cycle decomposition approach can be used.
+If we know the correct position of every element in the sorted array, we can count the number of swaps needed to place each element in its correct position.
+Steps:
+
+Create a copy of the array, sort it, and map each element of the original array to its position in the sorted array.
+Use a visited array to track whether an element has already been placed in its correct position.
+Traverse the array and identify cycles:
+A cycle occurs when elements are out of place but can be rearranged among themselves to achieve correct positions.
+For example, in [4, 5, 1, 2, 3], the cycle is: 4 → 1 → 5 → 3 → 2.
+Count Swaps for Each Cycle:
+
+The number of swaps needed for a cycle of size n is (n - 1).
+For example:
+Cycle [4, 1, 5, 3, 2] requires 4 swaps.
+
+
+## ----------------- Code --------------------
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <unordered_map>
+using namespace std;
+
+int minimumSwaps(vector<int>& arr) {
+    int n = arr.size();
+
+    // Step 1: Create a sorted copy of the array
+    vector<pair<int, int>> sortedArr(n);
+    for (int i = 0; i < n; i++) {
+        sortedArr[i] = {arr[i], i};
+    }
+    sort(sortedArr.begin(), sortedArr.end());
+
+    // Step 2: Create a visited array to track visited elements
+    vector<bool> visited(n, false);
+    int swaps = 0;
+
+    // Step 3: Traverse the array and calculate swaps
+    for (int i = 0; i < n; i++) {
+        // If element is already visited or in the correct position, skip it
+        if (visited[i] || sortedArr[i].second == i) continue;
+
+        // Calculate the size of the cycle
+        int cycleSize = 0;
+        int j = i;
+
+        while (!visited[j]) {
+            visited[j] = true;
+
+            // Move to the next index in the cycle
+            j = sortedArr[j].second;
+            cycleSize++;
+        }
+
+        // Add (cycleSize - 1) to swaps
+        if (cycleSize > 1) {
+            swaps += (cycleSize - 1);
+        }
+    }
+
+    return swaps;
+}
+
+int main() {
+    vector<int> arr = {4, 5, 1, 2, 3};
+    cout << "Minimum Swaps Required: " << minimumSwaps(arr) << endl;
+    return 0;
+}
+
