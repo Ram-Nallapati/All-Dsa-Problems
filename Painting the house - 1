@@ -1,0 +1,104 @@
+The Paint House problem is a classic Dynamic Programming (DP) problem. Let's dive into the explanation and its solution using C++ memoization.
+
+Problem Statement:
+You are given n houses in a row, where each house can be painted with one of three colors: red, blue, or green.
+The cost of painting each house with a certain color is given in a 2D array costs[][].
+
+Constraints:
+
+No two adjacent houses can have the same color.
+The goal is to minimize the total painting cost.
+Approach to Solve the Problem
+Recursive Definition:
+To minimize the cost of painting the houses:
+
+If house i is painted red, the next house (i+1) must be painted either blue or green.
+Similarly, if house i is painted blue, the next house must be painted either red or green, and so on.
+Using recursion:
+
+Let minCost(i, color) represent the minimum cost to paint houses from house i to house n-1, given that house i is painted with color.
+The recurrence relation is:
+
+minCost(i,color)=costs[i][color]+min(minCost(i+1,nextColor1),minCost(i+1,nextColor2))
+Here:
+nextColor1 and nextColor2 are the other two colors that are not equal to color.
+
+Base Case:
+
+If i == n (i.e., there are no more houses to paint), the cost is 0.
+Optimization via Memoization:
+
+Use a 2D DP array dp[i][color] to store results of subproblems to avoid redundant calculations.
+Algorithm Steps
+Define a 2D dp array of size [n][3] initialized to -1.
+Implement the recursive function minCost(i, color):
+Base case: Return 0 if i == n.
+If dp[i][color] != -1, return the precomputed result.
+Compute the cost of painting house i with the given color and recursively calculate the cost for the remaining houses.
+Iterate over the three possible colors for the first house (red, blue, green), and return the minimum of the results.
+
+
+
+
+
+
+---------------------- C++ Code Implementation --------------------
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int minCostHelper(int i, int color, vector<vector<int>>& costs, vector<vector<int>>& dp) {
+        int n = costs.size();
+
+        // Base case: No more houses to paint
+        if (i == n) return 0;
+
+        // If already computed, return the memoized value
+        if (dp[i][color] != -1) return dp[i][color];
+
+        // Compute the cost of painting the current house
+        int cost = costs[i][color];
+        if (color == 0) { // Current house painted red
+            cost += min(minCostHelper(i + 1, 1, costs, dp), minCostHelper(i + 1, 2, costs, dp));
+        } else if (color == 1) { // Current house painted blue
+            cost += min(minCostHelper(i + 1, 0, costs, dp), minCostHelper(i + 1, 2, costs, dp));
+        } else { // Current house painted green
+            cost += min(minCostHelper(i + 1, 0, costs, dp), minCostHelper(i + 1, 1, costs, dp));
+        }
+
+        // Memoize the result
+        return dp[i][color] = cost;
+    }
+
+    int minCost(vector<vector<int>>& costs) {
+        int n = costs.size();
+        if (n == 0) return 0;
+
+        // DP table for memoization
+        vector<vector<int>> dp(n, vector<int>(3, -1));
+
+        // Try starting with each color for the first house
+        int costRed = minCostHelper(0, 0, costs, dp); // Start with red
+        int costBlue = minCostHelper(0, 1, costs, dp); // Start with blue
+        int costGreen = minCostHelper(0, 2, costs, dp); // Start with green
+
+        // Return the minimum cost among all options
+        return min({costRed, costBlue, costGreen});
+    }
+};
+
+int main() {
+    // Input: costs for each house with three colors (red, blue, green)
+    vector<vector<int>> costs = {
+        {17, 2, 17}, 
+        {16, 16, 5}, 
+        {14, 3, 19}
+    };
+
+    Solution sol;
+    cout << "Minimum cost to paint all houses: " << sol.minCost(costs) << endl;
+
+    return 0;
+}
