@@ -1,0 +1,82 @@
+-------------Painting the Fence Algorithm ----------------------------
+
+
+
+The "Painting the Fence" problem is a classic Dynamic Programming problem that involves calculating the number of ways to paint a 
+fence with n posts using k colors such that no more than two adjacent posts have the same color.
+
+Problem Statement
+You are given:
+n: The number of fence posts.
+k: The number of available colors.
+You need to determine the total number of ways to paint the fence, satisfying the condition that no more than two consecutive posts are painted with the same color.
+
+
+---------- Approach ------------------
+We solve this problem using memoization (top-down dynamic programming). Here's the step-by-step thought process:
+
+State Definition
+Let dp[i] represent the number of ways to paint the first i fence posts such that no more than two adjacent posts have the same color.
+
+Recurrence Relation
+Case 1: Paint the i-th post with a color different from the (i-1)-th post.
+
+If the (i-1)-th post is painted in k ways, then there are (k - 1) ways to paint the i-th post.
+Contribution: 
+(𝑘−1)×𝑑𝑝[𝑖−1]  
+Case 2: Paint the i-th post with the same color as the (i-1)-th post.
+
+To ensure no more than 2 adjacent posts have the same color, the (i-2)-th post must be painted differently.
+Contribution: 
+(k−1)×dp[i−2].
+Combined Relation:
+dp[i]=(k−1)×(dp[i−1]+dp[i−2])
+Base Cases
+If n == 1, there are 𝑘
+k ways to paint the fence:
+𝑑𝑝[1]=𝑘
+If n == 2, there are 𝑘×𝑘
+k×k ways to paint the fence:
+dp[2]=k×k
+Algorithm (Memoization)
+Use a recursive function with memoization to avoid recomputation of overlapping subproblems.
+Store results for previously computed subproblems in a dp array.
+
+
+
+
+---------------- C++ Code with Memoization ----------------------
+
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Memoization function
+long long paintFence(int n, int k, vector<long long>& dp) {
+    // Base cases
+    if (n == 1) return k;
+    if (n == 2) return k * k;
+
+    // If the result is already computed, return it
+    if (dp[n] != -1) return dp[n];
+
+    // Recursive relation
+    dp[n] = (k - 1) * (paintFence(n - 1, k, dp) + paintFence(n - 2, k, dp));
+    return dp[n];
+}
+
+int main() {
+    int n = 4; // Number of fence posts
+    int k = 3; // Number of colors
+
+    // DP array initialized with -1
+    vector<long long> dp(n + 1, -1);
+
+    // Solve the problem using memoization
+    long long result = paintFence(n, k, dp);
+
+    cout << "The total number of ways to paint the fence is: " << result << endl;
+
+    return 0;
+}
