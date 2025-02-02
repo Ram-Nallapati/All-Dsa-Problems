@@ -1,0 +1,111 @@
+We have n rooms numbered from 0 to n-1 and a list of meetings where each meeting has a start time and an end time. The goal is to allocate these meetings to the rooms based on the following rules:
+
+Rules for Meeting Allocation
+Lowest available room:
+
+If a meeting starts and there are multiple available rooms, choose the room with the lowest number.
+Delaying a Meeting:
+
+If all rooms are occupied when a meeting starts, the meeting is delayed until the earliest possible time a room becomes available.
+The meeting's duration remains the same.
+Releasing a Room:
+
+When a meeting ends, that room becomes available.
+The next waiting meeting (earliest original start time) is assigned to the newly available room.
+Final Goal:
+
+Return the room that held the most meetings.
+If multiple rooms have the same number of meetings, return the smallest room number.
+Approach to Solve the Problem
+1. Sorting Meetings
+Since start times are unique, we sort meetings by start time.
+2. Using a Min-Heap to Track Room Availability
+A min-heap (priority queue) is used to track the ending times of meetings along with the room number.
+This helps in quickly determining which meeting finishes first.
+3. Using Another Min-Heap for Free Rooms
+Another min-heap keeps track of available rooms (sorted by room number).
+When a meeting finishes, the room is added back to this heap.
+4. Tracking Room Usage
+A frequency array (roomUsage) keeps track of how many times each room is used.
+The room with the highest usage is returned at the end.
+
+
+
+-------------------------------------- CODE -----------------------------------------------------
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+int mostBooked(int n, vector<vector<int>>& meetings) {
+    // Sort meetings by their start time
+    sort(meetings.begin(), meetings.end());
+
+    // Min-heap to store {end_time, room_id}, sorted by end_time
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<>> occupiedRooms;
+
+    // Min-heap to store available room numbers (sorted order)
+    priority_queue<int, vector<int>, greater<int>> freeRooms;
+
+    // Initialize all rooms as available
+    for (int i = 0; i < n; i++) {
+        freeRooms.push(i);
+    }
+
+    // Room usage count
+    vector<int> roomUsage(n, 0);
+
+    // Process each meeting
+    for (auto& meeting : meetings) {
+        int start = meeting[0];
+        int end = meeting[1];
+
+        // Free up rooms that are available before the current meeting starts
+        while (!occupiedRooms.empty() && occupiedRooms.top().first <= start) {
+            freeRooms.push(occupiedRooms.top().second);
+            occupiedRooms.pop();
+        }
+
+        // Allocate the lowest-numbered available room
+        if (!freeRooms.empty()) {
+            int room = freeRooms.top();
+            freeRooms.pop();
+            occupiedRooms.push({end, room});
+            roomUsage[room]++;
+        }
+        // If no room is available, delay the meeting
+        else {
+            auto nextAvailable = occupiedRooms.top();
+            occupiedRooms.pop();
+
+            int room = nextAvailable.second;
+            long long newEndTime = nextAvailable.first + (end - start);
+
+            occupiedRooms.push({newEndTime, room});
+            roomUsage[room]++;
+        }
+    }
+
+    // Find the room with the highest usage
+    int maxMeetings = 0, bestRoom = 0;
+    for (int i = 0; i < n; i++) {
+        if (roomUsage[i] > maxMeetings) {
+            maxMeetings = roomUsage[i];
+            bestRoom = i;
+        }
+    }
+    return bestRoom;
+}
+
+// Driver Code
+int main() {
+    vector<vector<int>> meetings1 = {{0, 10}, {1, 5}, {2, 7}, {3, 4}};
+    cout << mostBooked(2, meetings1) << endl;  // Output: 0
+
+    vector<vector<int>> meetings2 = {{1, 20}, {2, 10}, {3, 5}, {4, 9}, {6, 8}};
+    cout << mostBooked(3, meetings2) << endl;  // Output: 1
+
+    return 0;
+}
