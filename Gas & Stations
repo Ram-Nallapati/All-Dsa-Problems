@@ -1,0 +1,67 @@
+Gas Station Problem - Explanation and Algorithm
+This is a classic greedy algorithm problem where we need to determine if we can complete a circular journey starting from a gas station, given that each station provides a certain amount of gas but also requires a certain amount of fuel to reach the next station.
+
+Problem Breakdown
+We have n gas stations.
+Each station i provides gas[i] units of fuel.
+To travel from station i to i+1, it costs cost[i] units of fuel.
+Our goal is to find the starting gas station index that allows us to complete the circular journey.
+Key Observations
+If the total gas available across all stations is less than the total cost required to travel, it's impossible to complete the circuit, so return -1.
+
+If the total gas is sufficient, then there exists a valid starting station, and it is unique.
+We can determine the valid starting station using a greedy approach:
+Start from station 0, track the tank (remaining fuel).
+If at any point the tank becomes negative, it means we cannot start from any station before this point.
+Reset the starting point to the next station and continue.
+
+
+
+Algorithm
+Check feasibility:
+Compute total_gas = sum(gas) and total_cost = sum(cost).
+If total_gas < total_cost, return -1 (no valid start point).
+
+Greedy approach to find the starting station:
+
+Initialize tank = 0 (remaining fuel).
+Start iterating from station 0.
+Track start_index = 0 (potential valid start).
+If tank ever becomes negative, reset tank = 0 and set start_index = i + 1 (try the next station).
+
+
+--- Code --------------
+
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+    int total_gas = accumulate(gas.begin(), gas.end(), 0);
+    int total_cost = accumulate(cost.begin(), cost.end(), 0);
+
+    // If total gas is less than total cost, it's impossible to complete the circuit
+    if (total_gas < total_cost) return -1;
+
+    int tank = 0, start_index = 0;
+    for (int i = 0; i < gas.size(); i++) {
+        tank += gas[i] - cost[i];
+
+        // If tank is negative, reset start_index and tank
+        if (tank < 0) {
+            start_index = i + 1;
+            tank = 0;
+        }
+    }
+    return start_index;
+}
+
+int main() {
+    vector<int> gas = {1, 2, 3, 4, 5};
+    vector<int> cost = {3, 4, 5, 1, 2};
+    
+    int start = canCompleteCircuit(gas, cost);
+    cout << "Starting gas station: " << start << endl;  // Output: 3
+    return 0;
+}
