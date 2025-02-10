@@ -1,0 +1,79 @@
+
+🔹 Algorithm Explanation
+
+1. Handling Edge Cases
+If the number is 0, return "Zero".
+If the number is negative, specify “Negative” (though this isn't required in standard problems).
+
+2. Break the Number into Chunks
+Numbers are best handled in groups of three digits (hundreds, tens, and ones):
+1,234,567 is split into:
+1 million
+234 thousand
+567
+
+3. Process Each Chunk Separately
+Each group of three digits is converted into words:
+Example: 234 → "Two Hundred Thirty Four"
+
+4. Handling Different Number Ranges
+We use predefined word mappings:
+Below 20 → Direct words: "One", "Two", "Three", ..., "Nineteen"
+Tens (20, 30, ..., 90) → "Twenty", "Thirty", ..., "Ninety"
+Hundreds → "One Hundred", "Two Hundred", ..., "Nine Hundred"
+
+5. Combining Words with Large Scale Names
+Use scale names (Thousand, Million, Billion) as separators:
+1,234,567 → "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+
+--------------Code------------------
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class NumberToWordsConverter {
+private:
+    vector<string> belowTwenty = {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", 
+                                  "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", 
+                                  "Seventeen", "Eighteen", "Nineteen"};
+    
+    vector<string> tens = {"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    
+    vector<string> thousands = {"", "Thousand", "Million", "Billion"};
+
+    // Function to convert numbers below 1000 into words
+    string helper(int num) {
+        if (num == 0) return "";
+        else if (num < 20) return belowTwenty[num] + " ";
+        else if (num < 100) return tens[num / 10] + " " + helper(num % 10);
+        else return belowTwenty[num / 100] + " Hundred " + helper(num % 100);
+    }
+
+public:
+    string numberToWords(int num) {
+        if (num == 0) return "Zero";
+
+        string result = "";
+        int chunkIndex = 0;  // Tracks Thousand, Million, Billion
+        
+        while (num > 0) {
+            if (num % 1000 != 0) {  // Process non-zero chunks only
+                result = helper(num % 1000) + thousands[chunkIndex] + " " + result;
+            }
+            num /= 1000;  // Move to next chunk
+            chunkIndex++;
+        }
+
+        while (!result.empty() && result.back() == ' ') result.pop_back(); // Trim spaces
+        return result;
+    }
+};
+
+int main() {
+    NumberToWordsConverter converter;
+    int num = 1234567;
+    cout << "Number: " << num << endl;
+    cout << "Words: " << converter.numberToWords(num) << endl;
+    return 0;
+}
+
