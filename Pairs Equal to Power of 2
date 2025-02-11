@@ -1,0 +1,62 @@
+📝 Problem Statement
+
+A meal consists of exactly two dishes. The deliciousness of a meal is the sum of the deliciousness values of its two dishes.
+
+You are given an array deliciousness where deliciousness[i] is the deliciousness value of the i-th dish.
+
+Return the number of different pairs (i, j) (where i < j) such that the sum of the deliciousness values is a power of two (2^x).
+
+Since the answer may be large, return it modulo 10^9 + 7.
+
+
+🔍 Key Observations
+
+What are powers of two?
+Powers of two are numbers like {1, 2, 4, 8, 16, 32, 64, 128, 256, ...}
+Since deliciousness[i] ≤ 2 × 10⁹, the max power of two we consider is 2^21 = 2097152.
+
+Brute Force Approach (O(n²))
+Check every pair and see if their sum is a power of two.
+Too slow for large inputs!
+
+Optimal Approach: Using a HashMap (O(n))
+Use unordered_map<int, int> to keep track of previous numbers and count valid pairs efficiently.
+
+
+⚡ Optimized Approach: HashMap (O(n))
+
+Instead of checking all pairs, we:
+Iterate through deliciousness and, for each x, check how many numbers y exist such that x + y is a power of two.
+Use a HashMap (unordered_map<int, int>) to store how many times each number has appeared so far.
+For each x in deliciousness:
+Check if target = power_of_two - x exists in the map.
+If yes, add mpp[target] to the answer.
+Finally, store x in the hashmap.
+
+
+------------ CODE ------------------
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    int countPairs(vector<int>& deliciousness) {
+        const int MOD = 1e9 + 7;
+        unordered_map<int, int> mpp;
+        int count = 0;
+
+        for (int x : deliciousness) {
+            // Check all powers of 2 up to 2^21
+            for (int power = 1; power <= (1 << 21); power <<= 1) {
+                int target = power - x;  // What should pair with x?
+                if (mpp.count(target)) {
+                    count = (count + mpp[target]) % MOD;  // Count valid pairs
+                }
+            }
+            mpp[x]++;  // Store current number in map
+        }
+        
+        return count;
+    }
+};
