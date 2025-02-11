@@ -1,0 +1,70 @@
+The "Max Points on a Line" problem is a classic computational geometry problem that can be solved efficiently using hash maps and the slope formula.
+
+Algorithm
+
+Iterate Through Each Point: Consider each point as a reference.
+Calculate Slopes: For each reference point, compute the slope between it and all other points.
+Use a Hash Map to Count Slopes:
+Use a map (hash table) to store the slope (as a fraction) and count how many times it appears.
+The slope is calculated as (dy / dx), where dx = x2 - x1 and dy = y2 - y1.
+Since floating-point division can lead to precision issues, store the slope as a fraction (dy/gcd(dy, dx), dx/gcd(dy, dx)).
+Handle Special Cases:
+Duplicate points: If there are duplicate points, count them separately.
+Vertical lines: If dx == 0, store it as an infinite slope.
+Find Maximum Points on a Line:
+The maximum number of points on the same line will be max_count + duplicate_count + 1 (adding the reference point itself).
+
+
+-------------- Code --------------------
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxPoints(vector<vector<int>>& points) {
+        int n = points.size();
+        if (n <= 2) return n;
+
+        int max_points = 1;
+
+        for (int i = 0; i < n; i++) {
+            unordered_map<string, int> slope_map;
+            int duplicate = 0, vertical = 0, local_max = 0;
+
+            for (int j = i + 1; j < n; j++) {
+                int dx = points[j][0] - points[i][0];
+                int dy = points[j][1] - points[i][1];
+
+                if (dx == 0 && dy == 0) {
+                    duplicate++;
+                    continue;
+                }
+
+                if (dx == 0) {
+                    vertical++;
+                    continue;
+                }
+
+                int gcd_val = __gcd(dx, dy);
+                dx /= gcd_val;
+                dy /= gcd_val;
+
+                string slope = to_string(dy) + "/" + to_string(dx);
+                slope_map[slope]++;
+                local_max = max(local_max, slope_map[slope]);
+            }
+
+            max_points = max(max_points, max(local_max, vertical) + duplicate + 1);
+        }
+
+        return max_points;
+    }
+};
+
+int main() {
+    Solution sol;
+    vector<vector<int>> points = {{1,1}, {2,2}, {3,3}, {4,1}, {2,1}, {1,4}};
+    cout << "Maximum Points on a Line: " << sol.maxPoints(points) << endl;
+    return 0;
+}
