@@ -1,0 +1,93 @@
+Understanding the Problem: Counting Sub-Islands
+  
+Problem Statement Recap:
+
+We are given two binary matrices grid1 and grid2, both of size m x n. The cells in these matrices contain either:
+0 → representing water
+1 → representing land
+An island is a group of 1s that are connected vertically or horizontally (not diagonally).
+We need to count the number of sub-islands in grid2.
+A sub-island is an island in grid2 that is completely contained within an island in grid1 (i.e., every 1 in the sub-island must also be a 1 in grid1).
+
+Algorithm Explanation:
+
+We will use Depth-First Search (DFS) or Breadth-First Search (BFS) to solve this problem.
+Approach:
+Step 1: Remove invalid islands from grid2
+If a 1 exists in grid2 but not in grid1, it cannot be part of a sub-island.
+We traverse grid2 and eliminate all 1s that are not present in grid1 by converting them to 0.
+This ensures that we only consider islands that have a chance of being sub-islands.
+Step 2: Count remaining islands in grid2
+After filtering out invalid islands, we count the number of islands left in grid2 using DFS/BFS.
+Each remaining island in grid2 is a valid sub-island.
+
+------------------ CODE -----------------------
+
+  class Solution {
+public:
+    void removeIsland(int row, int col, vector<vector<int>>& grid1, vector<vector<int>>& grid2, int delrow[], int delcol[], int n, int m) {
+        grid2[row][col] = 0;  // Remove the land
+
+        for(int k = 0; k < 4; k++) {
+            int r = row + delrow[k];
+            int c = col + delcol[k];
+
+            if(r >= 0 && r < n && c >= 0 && c < m && grid2[r][c] == 1) {
+                removeIsland(r, c, grid1, grid2, delrow, delcol, n, m);
+            }
+        }
+    }
+
+    bool isSubIsland(int row, int col, vector<vector<int>>& grid1, vector<vector<int>>& grid2, int delrow[], int delcol[], int n, int m) {
+        if(row < 0 || row >= n || col < 0 || col >= m || grid2[row][col] == 0) 
+            return true;
+
+        if(grid1[row][col] == 0) 
+            return false;
+
+        grid2[row][col] = 0;  // Mark visited
+
+        bool isSub = true;
+        for(int k = 0; k < 4; k++) {
+            int r = row + delrow[k];
+            int c = col + delcol[k];
+
+            if(!isSubIsland(r, c, grid1, grid2, delrow, delcol, n, m)) {
+                isSub = false;
+            }
+        }
+        return isSub;
+    }
+
+    int countSubIslands(vector<vector<int>>& grid1, vector<vector<int>>& grid2) {
+        int n = grid1.size();
+        int m = grid1[0].size();
+
+        int delrow[] = {-1, 0, 1, 0};
+        int delcol[] = {0, 1, 0, -1};
+
+        // Remove all islands in grid2 that extend into water in grid1
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(grid2[i][j] == 1 && grid1[i][j] == 0) {
+                    removeIsland(i, j, grid1, grid2, delrow, delcol, n, m);
+                }
+            }
+        }
+
+        // Count remaining sub-islands
+        int count_sub_islands = 0;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(grid2[i][j] == 1) {
+                    if(isSubIsland(i, j, grid1, grid2, delrow, delcol, n, m)) {
+                        count_sub_islands++;
+                    }
+                }
+            }
+        }
+
+        return count_sub_islands;
+    }
+};
+
