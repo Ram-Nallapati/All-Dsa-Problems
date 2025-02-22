@@ -1,0 +1,60 @@
+------------------Approach (Backtracking)
+
+We use backtracking to explore all possible sequences while maintaining the validity of the parentheses.
+Keep track of the number of open and close parentheses used so far.
+Base Case: If open == close == n, we have a valid combination, so we add it to the result.
+Recursive Case:
+If the number of open parentheses used is less than n, we can add '('.
+If the number of close parentheses used is less than open parentheses used, we can add ')'.
+
+
+-----------------Algorithm Steps
+Initialize an empty string curr to store the current sequence.
+Start with open = 0 and close = 0.
+Recursively:
+Add '(' if open < n, then call the function recursively.
+Add ')' if close < open, then call the function recursively.
+If open == close == n, add curr to the result.
+
+
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void backtrack(int open, int close, int n, string curr, vector<string>& result) {
+    // Base case: If we have used n open and n close parentheses, add to result
+    if (open == n && close == n) {
+        result.push_back(curr);
+        return;
+    }
+    
+    // Add '(' if we still have open parentheses left to use
+    if (open < n) {
+        backtrack(open + 1, close, n, curr + "(", result);
+    }
+    
+    // Add ')' if the number of close parentheses is less than open
+    if (close < open) {
+        backtrack(open, close + 1, n, curr + ")", result);
+    }
+}
+
+vector<string> generateParenthesis(int n) {
+    vector<string> result;
+    backtrack(0, 0, n, "", result);
+    return result;
+}
+
+int main() {
+    int n = 3; // Example input
+    vector<string> res = generateParenthesis(n);
+
+    cout << "Valid Parentheses Combinations: \n";
+    for (string s : res) {
+        cout << s << endl;
+    }
+    
+    return 0;
+}
