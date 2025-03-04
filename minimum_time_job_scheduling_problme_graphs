@@ -1,0 +1,74 @@
+2️⃣ Job Scheduling with Minimum Time
+
+
+Problem Statement
+Each job takes 1 unit of time, and some jobs depend on others. Find the minimum time required to complete all jobs.
+
+Approach
+Use Topological Sorting (Kahn’s Algorithm) + Time Calculation.
+Keep track of completion time for each job.
+Ensure each job starts only after all prerequisites are completed.
+
+---------- Code --------------- 
+
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> minimumTimeToCompleteJobs(int N, int M, vector<vector<int>> &edges) {
+    vector<vector<int>> adj(N + 1);
+    vector<int> inDegree(N + 1, 0);
+    vector<int> time(N + 1, 0);
+
+    // Build the graph and in-degree array
+    for (auto &edge : edges) {
+        int u = edge[0], v = edge[1];
+        adj[u].push_back(v);
+        inDegree[v]++;
+    }
+
+    queue<int> q;
+
+    // Initialize jobs with no dependencies
+    for (int i = 1; i <= N; i++) {
+        if (inDegree[i] == 0) {
+            q.push(i);
+            time[i] = 1; // Jobs with no dependencies start at time 1
+        }
+    }
+
+    // Process jobs using BFS
+    while (!q.empty()) {
+        int job = q.front();
+        q.pop();
+
+        for (int dependentJob : adj[job]) {
+            inDegree[dependentJob]--; // Reduce dependency count
+
+            // Update completion time of the dependent job
+            time[dependentJob] = max(time[dependentJob], time[job] + 1);
+
+            if (inDegree[dependentJob] == 0) {
+                q.push(dependentJob);
+            }
+        }
+    }
+
+    time.erase(time.begin()); // Remove 0th index
+    return time;
+}
+
+// Driver Code
+int main() {
+    int N = 6, M = 6;
+    vector<vector<int>> edges = {{1, 3}, {1, 4}, {3, 5}, {4, 5}, {5, 6}, {2, 6}};
+
+    vector<int> result = minimumTimeToCompleteJobs(N, M, edges);
+    
+    cout << "Minimum Time to Complete Jobs: ";
+    for (int t : result) {
+        cout << t << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
