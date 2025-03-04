@@ -1,0 +1,138 @@
+Clone Graph - Detailed Explanation in C++
+
+Problem Statement
+
+Given a reference to a node in a connected undirected graph, return a deep copy (clone) of the graph. Each node in the graph contains a value (int val) and a list of neighbors (vector<Node*> neighbors).
+Understanding the Problem
+A deep copy of the graph means that we create a new graph where:
+
+Each node in the original graph has a corresponding new node in the cloned graph.
+The structure of the original graph (edges and neighbors) is preserved in the cloned graph.
+The original and cloned graphs should have separate memory allocations (i.e., modifying the cloned graph shouldn't affect the original).
+
+
+Approach to Solve the Problem
+
+1. Using DFS (Depth-First Search) - Recursive Approach
+We can perform a DFS traversal while cloning the graph:
+Use a hash map (unordered_map) to keep track of visited nodes. The key will be the original node, and the value will be the corresponding cloned node.
+If a node is not visited, create a copy, store it in the hash map, and recursively clone its neighbors.
+If a node is already visited, return its corresponding clone from the hash map.
+2. Using BFS (Breadth-First Search) - Iterative Approach
+Use a queue for BFS traversal.
+Create a clone for the starting node and put it in the queue.
+Process each node by:
+Cloning its neighbors if they are not already cloned.
+Adding the cloned neighbors to the clone node’s neighbor list.
+
+
+--------------- DFS -----------------------
+
+#include <bits/stdc++.h>
+using namespace std;
+
+// Definition for a Node
+class Node {
+public:
+    int val;
+    vector<Node*> neighbors;
+
+    Node() {
+        val = 0;
+        neighbors = vector<Node*>();
+    }
+
+    Node(int _val) {
+        val = _val;
+        neighbors = vector<Node*>();
+    }
+
+    Node(int _val, vector<Node*> _neighbors) {
+        val = _val;
+        neighbors = _neighbors;
+    }
+};
+
+class Solution {
+public:
+    unordered_map<Node*, Node*> clonedNodes; // Hash map to store cloned nodes
+
+    Node* cloneGraph(Node* node) {
+        if (!node) return nullptr;
+
+        // If the node is already cloned, return the clone
+        if (clonedNodes.find(node) != clonedNodes.end()) {
+            return clonedNodes[node];
+        }
+
+        // Clone the current node
+        Node* clone = new Node(node->val);
+        clonedNodes[node] = clone;
+
+        // Recursively clone all the neighbors
+        for (Node* neighbor : node->neighbors) {
+            clone->neighbors.push_back(cloneGraph(neighbor));
+        }
+
+        return clone;
+    }
+};
+
+
+-------------- BFS ------------------------
+#include <bits/stdc++.h>
+using namespace std;
+
+// Definition for a Node
+class Node {
+public:
+    int val;
+    vector<Node*> neighbors;
+
+    Node() {
+        val = 0;
+        neighbors = vector<Node*>();
+    }
+
+    Node(int _val) {
+        val = _val;
+        neighbors = vector<Node*>();
+    }
+
+    Node(int _val, vector<Node*> _neighbors) {
+        val = _val;
+        neighbors = _neighbors;
+    }
+};
+
+class Solution {
+public:
+    Node* cloneGraph(Node* node) {
+        if (!node) return nullptr;
+
+        unordered_map<Node*, Node*> clonedNodes; // Store cloned nodes
+        queue<Node*> q;
+
+        // Clone the first node and put it in the queue
+        Node* clone = new Node(node->val);
+        clonedNodes[node] = clone;
+        q.push(node);
+
+        while (!q.empty()) {
+            Node* curr = q.front();
+            q.pop();
+
+            // Iterate through all neighbors
+            for (Node* neighbor : curr->neighbors) {
+                if (clonedNodes.find(neighbor) == clonedNodes.end()) {
+                    // Clone the neighbor if not already cloned
+                    clonedNodes[neighbor] = new Node(neighbor->val);
+                    q.push(neighbor);
+                }
+                // Connect the cloned nodes
+                clonedNodes[curr]->neighbors.push_back(clonedNodes[neighbor]);
+            }
+        }
+        return clone;
+    }
+};
